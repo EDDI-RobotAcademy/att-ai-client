@@ -19,5 +19,5 @@ class IstpTestServiceImpl(IstpTestService):
 
         return cls.__instance
 
-    def chatWithIstp(self, userSendMessage):
-        return self.__IstpTestRepository.generateText(userSendMessage)
+    async def chatWithIstp(self, userSendMessage):
+        return await self.__IstpTestRepository.generateText(userSendMessage)
