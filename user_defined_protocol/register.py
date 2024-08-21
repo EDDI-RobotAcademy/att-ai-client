@@ -1,6 +1,9 @@
 import os
 import sys
 
+from enfp_test.service.enfp_test_service_impl import EnfpTestServiceImpl
+from enfp_test.service.request.enfp_test_request import EnfpTestRequest
+from enfp_test.service.response.enfp_test_response import EnfpTestResponse
 from first_user_defined_function_domain.service.fudf_service_impl import FudfServiceImpl
 from first_user_defined_function_domain.service.request.fudf_just_for_test_request import FudfJustForTestRequest
 from first_user_defined_function_domain.service.response.fudf_just_for_test_response import FudfJustForTestResponse
@@ -67,10 +70,37 @@ class UserDefinedProtocolRegister:
             IstpTestService.chatWithIstp
         )
 
-		# 초기 구동에서 호출하는 부분
+    @staticmethod
+    def registerEnfpTestProtocol():
+        customProtocolService = CustomProtocolServiceImpl.getInstance()
+        EnfpTestService = EnfpTestServiceImpl.getInstance()
+
+        # 여러분들이 구성한 것 (프로토콜과 request 등록)
+        requestClassMapInstance = RequestClassMap.getInstance()
+        requestClassMapInstance.addRequestClass(
+            UserDefinedProtocolNumber.ATT_TEAM_ENFP_TEST,
+            EnfpTestRequest
+        )
+
+        # 여러분들이 구성한 것 (프로토콜과 response 등록)
+        responseClassMapInstance = ResponseClassMap.getInstance()
+        responseClassMapInstance.addResponseClass(
+            UserDefinedProtocolNumber.ATT_TEAM_ENFP_TEST,
+            EnfpTestResponse
+        )
+
+        # 여러분들이 구성한 것 (프로토콜과 구동할 함수 등록)
+        customProtocolService.registerCustomProtocol(
+            UserDefinedProtocolNumber.ATT_TEAM_ENFP_TEST,
+            EnfpTestService.chatWithEnfp
+        )
+
+	# 초기 구동에서 호출하는 부분
     @staticmethod
     def registerUserDefinedProtocol():
 		# 디폴트 구성
         UserDefinedProtocolRegister.registerDefaultUserDefinedProtocol()
 	    # 여러분의 사용자 정의형 프로토콜 등록 파트
         UserDefinedProtocolRegister.registerIstpTestProtocol()
+        # ENFP chatbot register
+        UserDefinedProtocolRegister.registerEnfpTestProtocol()
