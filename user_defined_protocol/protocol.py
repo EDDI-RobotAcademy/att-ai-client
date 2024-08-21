@@ -6,7 +6,7 @@ class UserDefinedProtocolNumber(Enum):
     # 추가된 프로토콜 for ISTP test
     ATT_TEAM_ISTP_TEST = 7
     # 추가된 프로토콜 for ENFP test
-    ATT_TEAM_ENFP_TEST = 7
+    ATT_TEAM_ENFP_TEST = 8
 
     # 기존에 있던 테스트용 프로토콜
     FIRST_USER_DEFINED_FUNCTION_FOR_TEST = 5
