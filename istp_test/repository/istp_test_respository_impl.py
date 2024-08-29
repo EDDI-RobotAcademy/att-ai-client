@@ -58,7 +58,8 @@ class IstpTestRepositoryImpl(IstpTestRepository):
                 response = await client.post(self.OPENAI_CHAT_COMPLETIONS_URL, headers=self.headers, json=data)
                 response.raise_for_status()
 
-                return response.json()['choices'][0]['message']['content'].strip()
+                generatedText = response.json()['choices'][0]['message']['content'].strip()
+                return { "generatedText": generatedText } # dict 형식으로 반환해주어야 함
 
             except httpx.HTTPStatusError as e:
                 print(f"HTTP Error: {str(e)}")
