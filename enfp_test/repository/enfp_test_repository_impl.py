@@ -53,7 +53,7 @@ class EnfpTestRepositoryImpl(EnfpTestRepository):
             'temperature': 0.7,
         }
         # api에 추론 요청을 보내는 부분
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10000) as client:
             try:
                 # 우리가 service, repository에서 처리했던 부분을 여기서 딸깍으로 처리해버림
                 response = await client.post(self.OPENAI_CHAT_COMPLETIONS_URL, headers=self.headers, json=data)
