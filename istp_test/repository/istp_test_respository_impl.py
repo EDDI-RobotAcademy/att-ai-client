@@ -28,6 +28,10 @@ class IstpTestRepositoryImpl(IstpTestRepository):
 
     OPENAI_CHAT_COMPLETIONS_URL= "https://api.openai.com/v1/chat/completions"
 
+    conversation_history = [
+        {"role": "system", "content": "You are a helpful assistant."}
+    ]
+
     def __new__(cls):
         if cls.__instance is None:
             cls.__instance = super().__new__(cls)
@@ -42,23 +46,29 @@ class IstpTestRepositoryImpl(IstpTestRepository):
         return cls.__instance
 
     async def generateText(self, userSendMessage):
+
+        # 사용자 메시지를 대화 히스토리에 추가
+        self.conversation_history.append({"role": "user", "content": userSendMessage})
+
         data = {
             'model': model_istp,
-            'messages': [
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": userSendMessage}
-            ],
+            'messages': self.conversation_history,
             'max_tokens': 256,
-            'temperature': 0.7,
+            'temperature': 1.0,
         }
+
         # api에 추론 요청을 보내는 부분
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10000) as client:
             try:
                 # 우리가 service, repository에서 처리했던 부분을 여기서 딸깍으로 처리해버림
                 response = await client.post(self.OPENAI_CHAT_COMPLETIONS_URL, headers=self.headers, json=data)
                 response.raise_for_status()
 
                 generatedText = response.json()['choices'][0]['message']['content'].strip()
+
+                # AI의 응답을 대화 히스토리에 추가
+                self.conversation_history.append({"role": "assistant", "content": generatedText})
+
                 return { "generatedText": generatedText } # dict 형식으로 반환해주어야 함
 
             except httpx.HTTPStatusError as e:
