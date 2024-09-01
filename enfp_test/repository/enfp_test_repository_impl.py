@@ -2,14 +2,17 @@ import os
 
 import httpx
 import openai
+import nltk
 
 from openai import OpenAI
 from dotenv import load_dotenv
 from fastapi import HTTPException
+from nltk import sent_tokenize
 
 from enfp_test.repository.enfp_test_repository import EnfpTestRepository
 
 load_dotenv()
+nltk.download('punkt_tab') # 문장 분리를 위한 라이브러리
 
 openaiApiKey = os.getenv('OPENAI_API_KEY')
 if not openaiApiKey:
@@ -73,9 +76,19 @@ class EnfpTestRepositoryImpl(EnfpTestRepository):
                 generatedText = response.json()['choices'][0]['message']['content'].strip()
 
                 # AI의 응답을 대화 히스토리에 추가
-                self.conversation_history.append({"role": "assistant", "content": generatedText})
+                # self.conversation_history.append({"role": "assistant", "content": generatedText})
 
-                return {"generatedText": generatedText}  # dict 형식으로 반환해주어야 함
+                # return {"generatedText": generatedText}  # dict 형식으로 반환해주어야 함
+
+                # NLTK를 사용하여 텍스트를 문장 단위로 나누기
+                sentences = sent_tokenize(generatedText)
+
+                # AI의 응답을 대화 히스토리에 문장 단위로 추가
+                for sentence in sentences:
+                    self.conversation_history.append({"role": "assistant", "content": sentence})
+
+                # 문장 단위로 나누어진 리스트 형식으로 반환
+                return {"generatedText": sentences}  # dict 형식으로 반환
 
             except httpx.HTTPStatusError as e:
                 print(f"HTTP Error: {str(e)}")
