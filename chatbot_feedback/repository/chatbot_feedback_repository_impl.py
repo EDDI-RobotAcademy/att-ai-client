@@ -17,7 +17,7 @@ openaiApiKey = os.getenv('OPENAI_API_KEY')
 if not openaiApiKey:
     raise ValueError('API Key가 준비되어 있지 않습니다.')
 
-feedbackData = []
+
 
 class Feedback(BaseModel):
     fineTuneId: str # game fine-tuning된 모델 아이디
@@ -44,9 +44,16 @@ class ChatbotFeedbackRepositoryImpl(ChatbotFeedbackRepository):
 
         return cls.__instance
 
-    def giveChatbotFeedback(self, feedback: Feedback):
-        feedbackData.append(feedback.dict()) # feedback 데이터 내용을 feedbackData list에 추가
-        print(f"feedbackData: {feedbackData}")
+    async def giveChatbotFeedback(self, feedback):
+        feedback_json = json.dumps(feedback)
+
+        file_path = "feedbackData.jsonl"
+
+        with open(file_path, "a") as file:
+            file.write(feedback_json + "\n")  # JSONL 형식에 맞게 각 JSON 객체를 한 줄로 추가
+
+        #feedbackData.append(feedback) # feedback 데이터 내용을 feedbackData list에 추가
+        #print(f"feedbackData: {feedbackData}")
         return {"status": "Feedback received"}
 
     def saveTrainingData(self, trainingData, filename="training_data.jsonl"):
