@@ -1,6 +1,7 @@
 from chatbot_feedback.service.chatbot_feedback_service import ChatbotFeedbackService
 from chatbot_feedback.repository.chatbot_feedback_repository_impl import ChatbotFeedbackRepositoryImpl
 
+from fastapi import BackgroundTasks
 
 class ChatbotFeedbackServiceImpl(ChatbotFeedbackService):
 
@@ -31,3 +32,6 @@ class ChatbotFeedbackServiceImpl(ChatbotFeedbackService):
         }
 
         return await self.__chatbotFeedbackRepository.giveChatbotFeedback(userFeedback)
+
+    async def finetuneWithFeedback(self):
+        return await self.__chatbotFeedbackRepository.finetuneWithFeedback(backgroundTasks=BackgroundTasks)
