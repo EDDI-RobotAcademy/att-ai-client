@@ -27,10 +27,9 @@ class QnaRepositoryImpl(QnaRepository):
         'Content-Type': 'application/json',
     }
 
-    conversation_history = [
-        {"role": "system", "content": "대화의 맥락을 읽고 만나는 요일이 언제인지 한 단어로 답해줘. "
-                                      "만약 약속이 확정되지 않았다면 없다고 답해줘"}
-    ]
+    system_prompt = {"role": "system", "content": "대화의 맥락을 요약해서 만나는 요일이 언제인지 한 개의 단어로 답해줘. "
+                                       "너는 반드시 문장으로 말하면 안되고 요일 형태로만 말해줘."
+                                       "만약 약속이 정해지지 않았다면 없다고 답해줘"}
 
     OPENAI_CHAT_COMPLETIONS_URL= "https://api.openai.com/v1/chat/completions"
 
@@ -48,12 +47,11 @@ class QnaRepositoryImpl(QnaRepository):
         return cls.__instance
 
     async def dateQuestion(self, userSendMessage):
-        # 사용자 메시지를 대화 히스토리에 추가
-        self.conversation_history.append({"role": "user", "content": userSendMessage})
-
+        # systemPrompt를 대화의 맨 앞에 추가
+        userSendMessage.insert(0, self.system_prompt)
         data = {
             'model': model,
-            'messages': self.conversation_history,
+            'messages': userSendMessage,
             'max_tokens': 256,
             'temperature': 0.1,
         }
@@ -64,9 +62,6 @@ class QnaRepositoryImpl(QnaRepository):
                 response = await client.post(self.OPENAI_CHAT_COMPLETIONS_URL, headers=self.headers, json=data)
                 response.raise_for_status()
 
-                # generatedText = response.json()['choices'][0]['message']['content'].strip()
-                # self.conversation_history.append({"role": "assistant", "content": generatedText})
-                # return {"generatedText": generatedText}  # dict 형식으로 반환해주어야 함
                 generatedText = response.json()['choices'][0]['message']['content'].strip()
                 return { "generatedText": [generatedText] } # dict 형식으로 반환해주어야 함
 
